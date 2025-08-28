@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Roachagram.MobileUI.MainPage"
+              BackgroundColor="{DynamicResource PageBackground}">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20,0"
+            Spacing="10">
+            
+            <Image
+                Source="roach_machine_logo.png"
+                HeightRequest="185"
+                Aspect="AspectFit"
+                SemanticProperties.Description="roach machine robor face logo" />
+
+            <Label
+                Text="Welcome to Roachagram!"
+                TextColor="White"
+                Style="{StaticResource Headline}"
+                SemanticProperties.HeadingLevel="Level1" 
+                SemanticProperties.Description="Welcome to Roachagram" />
+
+            <Label
+                Text="Powered by Roach Machine"
+                TextColor="White"
+                Style="{StaticResource SubHeadline}"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description="Powered by Roach Machine" />
+            
+                
+            <Entry  
+                x:Name="InputEntry"
+                WidthRequest="475"
+                Placeholder="Enter a name or some words"  
+                TextColor="Black"  
+                BackgroundColor="White"  
+                PlaceholderColor="LightGray" 
+                HorizontalOptions="Fill"  
+                SemanticProperties.Hint="Enter a name or some words"
+                TextChanged="InputEntry_TextChanged" />
+
+
+            <Button
+                x:Name="SubmitBtn"
+                WidthRequest="200"
+                BackgroundColor="White"
+                TextColor="Black"
+                Text="Submit for Roachagrams" 
+                SemanticProperties.Hint="Submits input for anagrams"
+                Clicked="OnSubmit"
+                HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
