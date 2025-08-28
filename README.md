@@ -114,7 +114,7 @@ This project is licensed under the [MIT License](LICENSE).
 For questions or feedback, feel free to reach out:
 
 - **Author**: Michael Roach
-- **Email**: [your-email@example.com](mailto:your-email@example.com)
+- **Email**: [roachmachine.dev@gmail.com](mailto:roachmachine.dev@gmail.com)
 - **GitHub**: [roachmachine](https://github.com/roachmachine)
 
 ---
