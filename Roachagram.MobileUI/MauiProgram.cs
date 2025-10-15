@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Handlers;
 using Roachagram.MobileUI.Services;
 
 namespace Roachagram.MobileUI
@@ -9,6 +11,22 @@ namespace Roachagram.MobileUI
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
+            string appSettingsContent;
+            using (var stream = FileSystem.OpenAppPackageFileAsync("appsettings.json").Result)
+            using (var reader = new StreamReader(stream))
+            {
+                appSettingsContent = reader.ReadToEnd();
+            }
+
+            // Parse the JSON content into a configuration object
+            var appSettings = JsonSerializer.Deserialize<Dictionary<string, string>>(appSettingsContent);
+
+            if (appSettings != null)
+            {
+                builder.Configuration.AddInMemoryCollection(appSettings.Select(kvp => new KeyValuePair<string, string?>(kvp.Key, kvp.Value)));
+            }
+
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -22,14 +40,8 @@ namespace Roachagram.MobileUI
 #endif
 
             // Register services
+            builder.Services.AddScoped<HttpClient>();
             builder.Services.AddSingleton<IRoachagramAPIService, RoachagramAPIService>();
-
-            // Register appsettings.json
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true) // This requires the Microsoft.Extensions.Configuration.Json package and using directive
-                .Build();
-            builder.Configuration.AddConfiguration(configuration);
-
             return builder.Build();
         }
     }
