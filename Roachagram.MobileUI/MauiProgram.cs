@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Handlers;
 using Roachagram.MobileUI.Services;
 
 namespace Roachagram.MobileUI
@@ -41,6 +40,7 @@ namespace Roachagram.MobileUI
 
             // Register services
             builder.Services.AddScoped<HttpClient>();
+            builder.Services.AddSingleton<IRemoteTelemetryService, RemoteTelemetryService>();
             builder.Services.AddSingleton<IRoachagramAPIService, RoachagramAPIService>();
             return builder.Build();
         }
