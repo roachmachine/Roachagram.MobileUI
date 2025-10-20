@@ -86,11 +86,14 @@
 	  <None Update="Test Files\test.html">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <None Update="upload-key.jks">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<AndroidKeyStore>True</AndroidKeyStore>
-		<AndroidSigningKeyStore>"C:\Users\MichaelRoach\OneDrive - Roach Machine\Documents\Roach Machine\keys\Upload Key for Roach Machine Goole Play Store\upload-key.jks"</AndroidSigningKeyStore>
+		<AndroidSigningKeyStore>upload-key.jks</AndroidSigningKeyStore>
 		<AndroidSigningStorePass>$(ROACHAGRAM_STORE_PASS)</AndroidSigningStorePass>
 		<AndroidSigningKeyAlias>upload-key</AndroidSigningKeyAlias>
 		<AndroidSigningKeyPass>$(ROACHAGRAM_KEY_PASS)</AndroidSigningKeyPass>
