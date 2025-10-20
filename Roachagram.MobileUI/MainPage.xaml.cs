@@ -11,6 +11,7 @@ namespace Roachagram.MobileUI
     {
         // Maximum number of characters allowed in the input Entry.
         const int maxInputCharacters = 50;
+        private const int TEXT_EASE_IN_SECONDS = 2000;
         private readonly IRoachagramAPIService? _roachagramAPIService;
         private readonly IRemoteTelemetryService? _remoteTelemetryService;
         private string roachagramResponse = string.Empty;
@@ -128,12 +129,12 @@ namespace Roachagram.MobileUI
                     webviewBorder.Opacity = 0; 
                     webviewBorder.BackgroundColor = Colors.White;
                     webviewBorder.IsVisible = true;
-                    await webviewBorder.FadeTo(1, 5000, Easing.CubicIn);
+                    await webviewBorder.FadeTo(1, TEXT_EASE_IN_SECONDS, Easing.CubicIn);
                 }
                 catch (Exception ex)
                 {
                     // Track exception and provide fallback response
-                    _remoteTelemetryService?.TrackTraceAsync("Yo. We are testing the trace", props);
+                    _remoteTelemetryService?.TrackExceptionAsync(ex, props);
                     
                     roachagramResponse = "An error occurred while fetching anagrams. Please try again.";
 
