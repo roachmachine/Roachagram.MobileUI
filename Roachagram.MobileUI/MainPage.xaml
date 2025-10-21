@@ -24,6 +24,7 @@
 
                 <Label
                     Text="Anagrams Powered by Roach Machine"
+                    FontFamily="{OnPlatform Android='monospace', iOS='Menlo', MacCatalyst='Menlo', WinUI='Consolas'}"
                     TextColor="White"
                     HorizontalOptions="Center"
                     SemanticProperties.Description="Anagrams powered by Roach Machine" />
@@ -33,12 +34,12 @@
                 <Entry  
                     x:Name="InputEntry"
                     WidthRequest="175"
-                    Placeholder="Enter a name or words"  
+                    Placeholder="Enter words or a name"  
                     TextColor="Black"  
                     BackgroundColor="White"  
                     PlaceholderColor="LightGray" 
                     HorizontalOptions="Fill"  
-                    SemanticProperties.Hint="Enter a name or words"
+                    SemanticProperties.Hint="Enter words or a name"
                     TextChanged="InputEntry_TextChanged" />
 
                 <Button
