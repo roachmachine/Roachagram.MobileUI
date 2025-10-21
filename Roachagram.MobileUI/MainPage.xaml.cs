@@ -1,7 +1,6 @@
-﻿using Microsoft.Maui.Controls.Shapes;
+﻿using System.Text.RegularExpressions;
 using Roachagram.MobileUI.Helpers;
 using Roachagram.MobileUI.Services;
-using System.Text.RegularExpressions;
 
 namespace Roachagram.MobileUI
 {
@@ -10,7 +9,7 @@ namespace Roachagram.MobileUI
     public partial class MainPage : ContentPage
     {
         // Maximum number of characters allowed in the input Entry.
-        const int maxInputCharacters = 50;
+        const int maxInputCharacters = 25;
         private const int TEXT_EASE_IN_SECONDS = 2000;
         private readonly IRoachagramAPIService? _roachagramAPIService;
         private readonly IRemoteTelemetryService? _remoteTelemetryService;
@@ -20,7 +19,6 @@ namespace Roachagram.MobileUI
         // TelemetryClient is injected here.
         public MainPage(IRoachagramAPIService roachagramAPIService, IRemoteTelemetryService remoteTelemetryService)
         {
-
             try
             {
                 InitializeComponent();
@@ -28,6 +26,7 @@ namespace Roachagram.MobileUI
                 _remoteTelemetryService = remoteTelemetryService;
                 SubmitBtn.IsEnabled = false; // Disable the button initially
                 RoachagramResponseView.IsVisible = false; //no results yet
+
             }
             catch (Exception ex)
             {
@@ -62,11 +61,10 @@ namespace Roachagram.MobileUI
                 ["OS"] = $"{DeviceInfo.Platform} {DeviceInfo.VersionString}",
             };
 
-            var inputTextSnapshot = InputEntry?.Text ?? string.Empty;
+            string inputText = InputEntry?.Text ?? string.Empty;
 
             await SetButtonBusyAsync(SubmitBtn, async () =>
             {
-
                 try
                 {
                     //turn off and reset the results.
@@ -74,9 +72,16 @@ namespace Roachagram.MobileUI
                     RoachagramResponseView.Source = string.Empty;
                     webviewBorder.BackgroundColor = Colors.Transparent;
 
+                    if (InputEntry != null)
+                    {
+                        InputEntry.Text = string.Empty;
+                        InputEntry.IsEnabled = false;
+                        InputEntry.Placeholder = "Anagramming...";
+                    }
+
                     SemanticScreenReader.Announce(SubmitBtn.Text);
 
-                    string inputText = InputEntry?.Text ?? string.Empty;
+                    
 
                     if (_roachagramAPIService != null)
                     {
@@ -87,26 +92,51 @@ namespace Roachagram.MobileUI
                     roachagramResponse = TextFormatHelper.DecodeApiString(roachagramResponse);
                     roachagramResponse = TextFormatHelper.ReplaceMarkdownBoldWithHtmlBold(roachagramResponse);
                     roachagramResponse = TextFormatHelper.BoldSectionAfterHashes(roachagramResponse);
+                    roachagramResponse = TextFormatHelper.GetOriginalTextInput(inputText, roachagramResponse);
+                    roachagramResponse = TextFormatHelper.RemoveSingleQuotes(roachagramResponse);
+
+
+                    //set the html
                     roachagramResponse = $@"
-                                            <html>
-                                              <head>
-                                                <link href=""https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap"" rel=""stylesheet"">
-                                                <style>
-                                                  body {{
-                                                    color: black;
-                                                    background-color: white;
-                                                    font-family: 'Open Sans', Arial, sans-serif;
-                                                    margin: 0;
-                                                    padding: 10px;
-                                                    border: 0;
-                                                  }}
-                                                </style>
-                                              </head>
-                                              <body>
-                                                <p>{TextFormatHelper.CapitalizeWordsInQuotes(roachagramResponse)}</p>
-                                              </body>
-                                            </html>
-                                            ";
+                                        <!DOCTYPE html>
+                                        <html>
+                                        <head>
+                                          <style>
+                                            body {{
+                                              padding: 20px;
+                                              background-color: white;
+                                              color: black;
+                                            }}
+                                            #typedText {{
+                                              font-family: monospace;
+                                              white-space: pre-wrap;
+                                            }}
+                                          </style>
+                                        </head>
+                                        <body>
+                                          <div id=""typedText""></div>
+
+                                          <script>
+    
+                                            const text = `{roachagramResponse}`;
+                                            const speed = 10;
+                                            let i = 0;
+                                            let current = """";
+
+                                            function typeWriter() {{
+                                              if (i < text.length) {{
+                                                current += text[i];
+                                                document.getElementById(""typedText"").innerHTML = current;
+                                                i++;
+                                                setTimeout(typeWriter, speed);
+                                              }}
+                                            }}
+
+                                            typeWriter();
+                                          </script>
+                                        </body>
+                                        </html>
+                                        ";
 
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
@@ -118,15 +148,16 @@ namespace Roachagram.MobileUI
 
                     if (InputEntry != null)
                     {
-                        // Clear the Entry after submission
-                        InputEntry.Text = string.Empty; 
+                        InputEntry.Text = string.Empty;
+                        InputEntry.IsEnabled = true;
+                        InputEntry.Placeholder = "Enter words or a name";
                     }
 
                     // turn off the loading spinner and fade in the webviewBorder
                     LoadingIndicator.IsRunning = false;
                     LoadingIndicator.IsVisible = false;
                     RoachagramResponseView.IsVisible = true;
-                    webviewBorder.Opacity = 0; 
+                    webviewBorder.Opacity = 0;
                     webviewBorder.BackgroundColor = Colors.White;
                     webviewBorder.IsVisible = true;
                     await webviewBorder.FadeTo(1, TEXT_EASE_IN_SECONDS, Easing.CubicIn);
@@ -135,7 +166,7 @@ namespace Roachagram.MobileUI
                 {
                     // Track exception and provide fallback response
                     _remoteTelemetryService?.TrackExceptionAsync(ex, props);
-                    
+
                     roachagramResponse = "An error occurred while fetching anagrams. Please try again.";
 
                     // Ensure UI shows the error message
@@ -147,6 +178,13 @@ namespace Roachagram.MobileUI
                                 <html><body><p>{TextFormatHelper.CapitalizeWordsInQuotes(roachagramResponse)}</p></body></html>"
                         };
                         RoachagramResponseView.IsVisible = true;
+
+                        if (InputEntry != null)
+                        {
+                            InputEntry.IsEnabled = true;
+                            InputEntry.Placeholder = "Enter words or a name";
+                        }
+
                         LoadingIndicator.IsRunning = false;
                         LoadingIndicator.IsVisible = false;
                     });
