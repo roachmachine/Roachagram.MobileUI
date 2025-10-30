@@ -9,7 +9,7 @@ namespace Roachagram.MobileUI
     public partial class MainPage : ContentPage
     {
         // Maximum number of characters allowed in the input Entry.
-        const int maxInputCharacters = 25;
+        const int maxInputCharacters = 15;
         private const int TEXT_EASE_IN_SECONDS = 2000;
         private readonly IRoachagramAPIService? _roachagramAPIService;
         private readonly IRemoteTelemetryService? _remoteTelemetryService;
