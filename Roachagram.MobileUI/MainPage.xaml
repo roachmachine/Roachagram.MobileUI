@@ -1,86 +1,98 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Roachagram.MobileUI.MainPage"
-             BackgroundColor="{DynamicResource PageBackground}">
-    <Grid RowDefinitions="Auto,*" Padding="10,0" MinimumWidthRequest="320">
-        <VerticalStackLayout 
-            Padding="10,0"
-            Spacing="10"
-            Grid.Row="0">
+             BackgroundColor="#f8e1b6">
 
-            <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
-                <Image
-                    Source="roach_machine_logo.png"
-                    HeightRequest="100"
-                    Aspect="AspectFit"
-                    SemanticProperties.Description="roach machine robor face logo" />
+    <ScrollView HorizontalOptions="Fill" BackgroundColor="#f8e1b6">
+        <Grid RowSpacing="0" HorizontalOptions="Fill">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" /> <!-- Image -->
+                <RowDefinition Height="Auto" /> <!-- Label (title) -->
+                <RowDefinition Height="Auto" /> <!-- Label (subtitle) -->
+                <RowDefinition Height="Auto" /> <!-- Input row -->
+                <RowDefinition Height="Auto" /> <!-- ActivityIndicator -->
+                <RowDefinition Height="*" />    <!-- WebView (fills remaining space) -->
+            </Grid.RowDefinitions>
 
-                <Label
-                    Text="Roachagram!"
-                    TextColor="White"
-                    Style="{StaticResource SubHeadline}"
-                    SemanticProperties.HeadingLevel="Level3"
-                    SemanticProperties.Description="Welcome to Roachagram" />
+            <Image
+                Grid.Row="0"
+                Source="roachagram_robot.png"
+                HeightRequest="200"
+                Aspect="AspectFit"
+                Margin="0,10,0,10"
+                SemanticProperties.Description="roachagram robot face logo"
+                HorizontalOptions="Center" />
 
-                <Label
-                    Text="Anagrams Powered by Roach Machine"
-                    FontFamily="{OnPlatform Android='monospace', iOS='Menlo', MacCatalyst='Menlo', WinUI='Consolas'}"
-                    TextColor="White"
-                    HorizontalOptions="Center"
-                    SemanticProperties.Description="Anagrams powered by Roach Machine" />
-            </VerticalStackLayout>
+            <Label
+                Grid.Row="1"
+                Text="Anagrams Powered by Roach Machine © 2025"
+                FontFamily="{OnPlatform Android='monospace', iOS='Menlo', MacCatalyst='Menlo', WinUI='Consolas'}"
+                TextColor="#478e99"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                SemanticProperties.Description="Anagrams powered by Roach Machine" />
 
-            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                <Entry  
+            <Label
+                Grid.Row="2"
+                Text="Smart anagrams in ~15 seconds, sometimes a bit longer."
+                FontFamily="{OnPlatform Android='monospace', iOS='Menlo', MacCatalyst='Menlo', WinUI='Consolas'}"
+                TextColor="#478e99"
+                HorizontalOptions="Fill"
+                HorizontalTextAlignment="Center"
+                Margin="0,0,0,10"
+                SemanticProperties.Description="Smart anagrams in ~15 seconds, sometimes a bit longer." />
+
+            <!-- Input Row: Entry + Button implemented as a Grid -->
+            <Grid Grid.Row="3" ColumnSpacing="10" Margin="0,0,0,0" HorizontalOptions="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Entry
+                    Grid.Column="0"
                     x:Name="InputEntry"
-                    WidthRequest="175"
-                    Placeholder="Enter words or a name"  
-                    TextColor="Black"  
-                    BackgroundColor="White"  
-                    PlaceholderColor="LightGray" 
-                    HorizontalOptions="Fill"  
+                    Placeholder="Enter words or a name"
+                    TextColor="Black"
+                    BackgroundColor="White"
+                    PlaceholderColor="LightGray"
+                    HorizontalOptions="Fill"
                     SemanticProperties.Hint="Enter words or a name"
                     TextChanged="InputEntry_TextChanged" />
 
                 <Button
+                    Grid.Column="1"
                     x:Name="SubmitBtn"
                     WidthRequest="75"
-                    HorizontalOptions="Fill"  
                     BackgroundColor="White"
                     TextColor="Black"
-                    Text="Go!" 
+                    Text="Go!"
                     SemanticProperties.Hint="Submits input for anagrams"
                     Clicked="OnSubmit"/>
-            </HorizontalStackLayout>
+            </Grid>
 
             <ActivityIndicator
+                Grid.Row="4"
                 x:Name="LoadingIndicator"
                 IsVisible="false"
                 IsRunning="false"
-                Color="White"
+                Color="#e37335"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 HeightRequest="80"
                 WidthRequest="80"
                 Margin="0,20,0,0"
-                SemanticProperties.Hint = "Thinking..."
-                />
-        </VerticalStackLayout>
-        <Border x:Name="webviewBorder"
-    Grid.Row="1"
-    Margin="0,20,0,20"
-    BackgroundColor="Transparent"
-    Stroke="Transparent">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10"/>
-            </Border.StrokeShape>
-            <WebView    
-        x:Name="RoachagramResponseView"
-        MinimumHeightRequest="300"
-        HorizontalOptions="Fill"
-        Source="data:text/html"
-        SemanticProperties.Description="Displays the Roachagram response as HTML"
-        InputTransparent="False" />
-        </Border>
-    </Grid>
+                SemanticProperties.Hint="Thinking..." />
+
+            <WebView
+                Grid.Row="5"
+                x:Name="RoachagramResponseView"
+                BackgroundColor="#f8e1b6"
+                HeightRequest="1500"
+                HorizontalOptions="Fill"
+                Source=""
+                SemanticProperties.Description="Displays the Roachagram response as HTML"
+                InputTransparent="True" />
+        </Grid>
+    </ScrollView>
 </ContentPage>

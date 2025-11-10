@@ -10,7 +10,7 @@ namespace Roachagram.MobileUI
     {
         // Maximum number of characters allowed in the input Entry.
         const int maxInputCharacters = 15;
-        private const int TEXT_EASE_IN_SECONDS = 2000;
+        private const int TEXT_EASE_IN_MILLISECONDS = 1000;
         private readonly IRoachagramAPIService? _roachagramAPIService;
         private readonly IRemoteTelemetryService? _remoteTelemetryService;
         private string roachagramResponse = string.Empty;
@@ -70,7 +70,6 @@ namespace Roachagram.MobileUI
                     //turn off and reset the results.
                     RoachagramResponseView.IsVisible = false;
                     RoachagramResponseView.Source = string.Empty;
-                    webviewBorder.BackgroundColor = Colors.Transparent;
 
                     if (InputEntry != null)
                     {
@@ -104,22 +103,24 @@ namespace Roachagram.MobileUI
                                           <style>
                                             body {{
                                               padding: 20px;
-                                              background-color: white;
-                                              color: black;
+                                              background-color: #f8e1b6;
+                                              color: #478e99;
                                             }}
                                             #typedText {{
                                               font-family: monospace;
                                               white-space: pre-wrap;
+                                             display: block;
+                                             height: auto;
                                             }}
                                           </style>
                                         </head>
                                         <body>
-                                          <div id=""typedText""></div>
+                                          <div style=""padding-bottom: 20px;"" id=""typedText""></div>
 
                                           <script>
     
                                             const text = `{roachagramResponse}`;
-                                            const speed = 10;
+                                            const speed = 15;
                                             let i = 0;
                                             let current = """";
 
@@ -138,58 +139,84 @@ namespace Roachagram.MobileUI
                                         </html>
                                         ";
 
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        RoachagramResponseView.Source = new HtmlWebViewSource
-                        {
-                            Html = $"{roachagramResponse}"
-                        };
-                    });
-
-                    if (InputEntry != null)
-                    {
-                        InputEntry.Text = string.Empty;
-                        InputEntry.IsEnabled = true;
-                        InputEntry.Placeholder = "Enter words or a name";
-                    }
-
-                    // turn off the loading spinner and fade in the webviewBorder
-                    LoadingIndicator.IsRunning = false;
-                    LoadingIndicator.IsVisible = false;
-                    RoachagramResponseView.IsVisible = true;
-                    webviewBorder.Opacity = 0;
-                    webviewBorder.BackgroundColor = Colors.White;
-                    webviewBorder.IsVisible = true;
-                    await webviewBorder.FadeTo(1, TEXT_EASE_IN_SECONDS, Easing.CubicIn);
-                }
-                catch (Exception ex)
+            // Update UI and perform fade-in animation on main thread
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                RoachagramResponseView.Source = new HtmlWebViewSource
                 {
-                    // Track exception and provide fallback response
-                    _remoteTelemetryService?.TrackExceptionAsync(ex, props);
+                    Html = $"{roachagramResponse}"
+                };
 
-                    roachagramResponse = "An error occurred while fetching anagrams. Please try again.";
-
-                    // Ensure UI shows the error message
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        RoachagramResponseView.Source = new HtmlWebViewSource
-                        {
-                            Html = $@"
-                                <html><body><p>{TextFormatHelper.CapitalizeWordsInQuotes(roachagramResponse)}</p></body></html>"
-                        };
-                        RoachagramResponseView.IsVisible = true;
-
-                        if (InputEntry != null)
-                        {
-                            InputEntry.IsEnabled = true;
-                            InputEntry.Placeholder = "Enter words or a name";
-                        }
-
-                        LoadingIndicator.IsRunning = false;
-                        LoadingIndicator.IsVisible = false;
-                    });
+                // Re-enable input and restore placeholder before fade so the UI is responsive.
+                if (InputEntry != null)
+                {
+                    InputEntry.Text = string.Empty;
+                    InputEntry.IsEnabled = true;
+                    InputEntry.Placeholder = "Enter words or a name";
                 }
+
+                // Turn off the loading spinner
+                LoadingIndicator.IsRunning = false;
+                LoadingIndicator.IsVisible = false;
+
+                // Prepare and animate the web view opacity from 0 -> 1 with easing
+                RoachagramResponseView.Opacity = 0;
+                RoachagramResponseView.IsVisible = true;
+
+                // FadeTo takes duration in milliseconds (uint) and an Easing. Use the existing TEXT_EASE_IN_SECONDS.
+                await RoachagramResponseView.FadeTo(1, (uint)TEXT_EASE_IN_MILLISECONDS, Easing.CubicOut);
             });
+
+            // No additional UI changes needed here because they were handled on the main thread above.
+        }
+        catch (Exception ex)
+        {
+            // Track exception and provide fallback response
+            _remoteTelemetryService?.TrackExceptionAsync(ex, props);
+
+            roachagramResponse = "An error occurred while fetching anagrams. Please try again.";
+
+            // Ensure UI shows the error message and animate it the same way
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                RoachagramResponseView.Source = new HtmlWebViewSource
+                {
+                    Html = $@"
+                        <html>
+                            <head>
+                                <style>
+                                body {{
+                                    background-color: #f8e1b6;
+                                    color: #478e99;
+                                    font-family: monospace;
+                                    white-space: pre-wrap;
+                                    display: block;
+                                    text-align:center;
+                                }}
+                                </style>
+                            </head>
+                            <body>
+                                <p><span style=""color:red;"">💥&nbsp;</span>{TextFormatHelper.CapitalizeWordsInQuotes(roachagramResponse)}</p>
+                            </body>
+                        </html>"
+                };
+
+                if (InputEntry != null)
+                {
+                    InputEntry.IsEnabled = true;
+                    InputEntry.Placeholder = "Enter words or a name";
+                }
+
+                LoadingIndicator.IsRunning = false;
+                LoadingIndicator.IsVisible = false;
+
+                RoachagramResponseView.Opacity = 0;
+                RoachagramResponseView.IsVisible = true;
+
+                await RoachagramResponseView.FadeTo(1, (uint)TEXT_EASE_IN_MILLISECONDS, Easing.CubicOut);
+            });
+        }
+    });
         }
 
         // Event handler for the text changed event of an Entry control.
@@ -232,8 +259,9 @@ namespace Roachagram.MobileUI
                 string originalText = button.Text;
                 var originalButtonColor = button.BackgroundColor;
                 button.IsEnabled = false;
-                button.Text = "...";
-                button.BackgroundColor = Colors.DarkGray;
+                // Use a rocket emoji as the busy indicator
+                button.Text = "🚀";
+                button.Opacity = 0.7;
 
                 LoadingIndicator.IsRunning = true;
                 LoadingIndicator.IsVisible = true;
@@ -248,6 +276,7 @@ namespace Roachagram.MobileUI
                     button.IsEnabled = true;
                     button.Text = originalText;
                     button.BackgroundColor = originalButtonColor;
+                    button.Opacity = 1.0;
                 }
             }
             catch (Exception ex)

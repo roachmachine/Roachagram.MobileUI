@@ -20,10 +20,10 @@
     <Color x:Key="OffBlack">#1f1f1f</Color>
 
     <!--support for light and dark mode-->
-    <Color x:Key="PageBackgroundLight">#FFFFFF</Color>
-    <Color x:Key="PageBackgroundDark">#171c30</Color>
-    <Color x:Key="PageTextLight">#000000</Color>
-    <Color x:Key="PageTextDark">#FFFFFF</Color>
+    <Color x:Key="PageBackgroundLight">#f8e1b6</Color>
+    <Color x:Key="PageBackgroundDark">#478e99</Color>
+    <Color x:Key="PageTextLight">#478e99</Color>
+    <Color x:Key="PageTextDark">#f8e1b6</Color>
 
     <Color x:Key="Gray100">#E1E1E1</Color>
     <Color x:Key="Gray200">#C8C8C8</Color>
