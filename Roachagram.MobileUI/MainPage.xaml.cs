@@ -33,11 +33,11 @@ namespace Roachagram.MobileUI
                     _connectivityService.ConnectivityChanged += OnConnectivityChanged;
                 }
 
-                // Check initial connectivity state
-                UpdateConnectionStatus();
-
                 SubmitBtn.IsEnabled = false; // Disable the button initially
                 RoachagramResponseView.IsVisible = false; //no results yet
+
+                // Check initial connectivity state
+                UpdateConnectionStatus();
 
             }
             catch (Exception ex)
@@ -49,43 +49,57 @@ namespace Roachagram.MobileUI
 
         private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
+            try
             {
-                UpdateConnectionStatus();
-            });
+                MainThread.BeginInvokeOnMainThread(() =>
+        {
+            UpdateConnectionStatus();
+        });
+            }
+            catch (Exception ex)
+            {
+                _remoteTelemetryService?.TrackExceptionAsync(ex);
+            }
         }
 
         private void UpdateConnectionStatus()
         {
-            bool isConnected = _connectivityService?.IsConnected ?? true;
-
-            ConnectionBanner.IsVisible = !isConnected;
-
-            // Optionally disable the submit button when offline
-            if (!isConnected)
+            try
             {
-                SubmitBtn.IsEnabled = false;
+                bool isConnected = _connectivityService?.IsConnected ?? true;
+
+                ConnectionBanner.IsVisible = !isConnected;
+
+                // Optionally disable the submit button when offline
+                SubmitBtn.IsEnabled = isConnected && !string.IsNullOrWhiteSpace(InputEntry?.Text);
+
+                // Announce to screen reader
+                if (!isConnected)
+                {
+                    SemanticScreenReader.Announce("Internet connection lost");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                SubmitBtn.IsEnabled = !string.IsNullOrWhiteSpace(InputEntry?.Text);
-            }
-
-            // Announce to screen reader
-            if (!isConnected)
-            {
-                SemanticScreenReader.Announce("Internet connection lost");
+                _remoteTelemetryService?.TrackExceptionAsync(ex);
             }
         }
 
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
-            // Unsubscribe from connectivity changes
-            if (_connectivityService != null)
+            try
             {
-                _connectivityService.ConnectivityChanged -= OnConnectivityChanged;
+                base.OnDisappearing();
+
+                // Unsubscribe from connectivity changes
+                if (_connectivityService != null)
+                {
+                    _connectivityService.ConnectivityChanged -= OnConnectivityChanged;
+                }
+            }
+            catch (Exception ex)
+            {
+                _remoteTelemetryService?.TrackExceptionAsync(ex);
             }
         }
 
@@ -114,7 +128,7 @@ namespace Roachagram.MobileUI
                 return;
             }
 
-            //Use these proprties for logging to Application Insights
+            //Use these properties for logging to Application Insights
             var props = new Dictionary<string, string>
             {
                 ["Page"] = "MainPage",

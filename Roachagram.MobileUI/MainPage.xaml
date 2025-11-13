@@ -68,7 +68,6 @@
                     WidthRequest="200"
                     BackgroundColor="White"
                     PlaceholderColor="LightGray"
-                    HorizontalOptions="Fill"
                     SemanticProperties.Hint="Enter words or a name"
                     TextChanged="InputEntry_TextChanged" />
 
