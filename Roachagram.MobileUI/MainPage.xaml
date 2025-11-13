@@ -1,11 +1,17 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Roachagram.MobileUI.MainPage"
-             BackgroundColor="#f8e1b6">
+             BackgroundColor="#f8e1b6"
+             xmlns:views="clr-namespace:Roachagram.MobileUI.Views">
+
+
 
     <ScrollView HorizontalOptions="Fill" BackgroundColor="#f8e1b6">
+
         <Grid RowSpacing="0" HorizontalOptions="Fill">
             <Grid.RowDefinitions>
+                <!-- NEW top banner row -->
+                <RowDefinition Height="Auto" /> <!-- NoConnectionBanner -->
                 <RowDefinition Height="Auto" /> <!-- Image -->
                 <RowDefinition Height="Auto" /> <!-- Label (title) -->
                 <RowDefinition Height="Auto" /> <!-- Label (subtitle) -->
@@ -14,8 +20,13 @@
                 <RowDefinition Height="*" />    <!-- WebView (fills remaining space) -->
             </Grid.RowDefinitions>
 
+            <!-- assign banner to the new top row -->
+            <views:NoConnectionBanner x:Name="ConnectionBanner" 
+                         Grid.Row="0"
+                         IsVisible="False"/>
+
             <Image
-                Grid.Row="0"
+                Grid.Row="1"
                 Source="roachagram_robot.png"
                 HeightRequest="200"
                 Aspect="AspectFit"
@@ -24,7 +35,7 @@
                 HorizontalOptions="Center" />
 
             <Label
-                Grid.Row="1"
+                Grid.Row="2"
                 Text="Anagrams Powered by Roach Machine © 2025"
                 FontFamily="{OnPlatform Android='monospace', iOS='Menlo', MacCatalyst='Menlo', WinUI='Consolas'}"
                 TextColor="#478e99"
@@ -33,7 +44,7 @@
                 SemanticProperties.Description="Anagrams powered by Roach Machine" />
 
             <Label
-                Grid.Row="2"
+                Grid.Row="3"
                 Text="Smart anagrams in ~15 seconds, sometimes a bit longer."
                 FontFamily="{OnPlatform Android='monospace', iOS='Menlo', MacCatalyst='Menlo', WinUI='Consolas'}"
                 TextColor="#478e99"
@@ -43,7 +54,7 @@
                 SemanticProperties.Description="Smart anagrams in ~15 seconds, sometimes a bit longer." />
 
             <!-- Input Row: Entry + Button implemented as a Grid -->
-            <Grid Grid.Row="3" ColumnSpacing="10" Margin="0,0,0,0" HorizontalOptions="Center">
+            <Grid Grid.Row="4" ColumnSpacing="10" Margin="0,0,0,0" HorizontalOptions="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -54,6 +65,7 @@
                     x:Name="InputEntry"
                     Placeholder="Enter words or a name"
                     TextColor="Black"
+                    WidthRequest="200"
                     BackgroundColor="White"
                     PlaceholderColor="LightGray"
                     HorizontalOptions="Fill"
@@ -72,7 +84,7 @@
             </Grid>
 
             <ActivityIndicator
-                Grid.Row="4"
+                Grid.Row="5"
                 x:Name="LoadingIndicator"
                 IsVisible="false"
                 IsRunning="false"
@@ -85,10 +97,10 @@
                 SemanticProperties.Hint="Thinking..." />
 
             <WebView
-                Grid.Row="5"
+                Grid.Row="6"
                 x:Name="RoachagramResponseView"
                 BackgroundColor="#f8e1b6"
-                HeightRequest="1500"
+                HeightRequest="1300"
                 HorizontalOptions="Fill"
                 Source=""
                 SemanticProperties.Description="Displays the Roachagram response as HTML"

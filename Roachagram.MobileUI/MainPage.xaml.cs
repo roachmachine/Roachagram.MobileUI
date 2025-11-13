@@ -13,17 +13,29 @@ namespace Roachagram.MobileUI
         private const int TEXT_EASE_IN_MILLISECONDS = 1000;
         private readonly IRoachagramAPIService? _roachagramAPIService;
         private readonly IRemoteTelemetryService? _remoteTelemetryService;
+        private readonly IConnectivityService? _connectivityService;
         private string roachagramResponse = string.Empty;
 
         // Constructor for MainPage. Initializes the components of the page.
         // TelemetryClient is injected here.
-        public MainPage(IRoachagramAPIService roachagramAPIService, IRemoteTelemetryService remoteTelemetryService)
+        public MainPage(IRoachagramAPIService roachagramAPIService, IRemoteTelemetryService remoteTelemetryService, IConnectivityService connectivityService)
         {
             try
             {
                 InitializeComponent();
                 _roachagramAPIService = roachagramAPIService;
                 _remoteTelemetryService = remoteTelemetryService;
+                _connectivityService = connectivityService;
+
+                // Subscribe to connectivity changes
+                if (_connectivityService != null)
+                {
+                    _connectivityService.ConnectivityChanged += OnConnectivityChanged;
+                }
+
+                // Check initial connectivity state
+                UpdateConnectionStatus();
+
                 SubmitBtn.IsEnabled = false; // Disable the button initially
                 RoachagramResponseView.IsVisible = false; //no results yet
 
@@ -32,6 +44,48 @@ namespace Roachagram.MobileUI
             {
                 _remoteTelemetryService?.TrackExceptionAsync(ex);
                 throw;
+            }
+        }
+
+        private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                UpdateConnectionStatus();
+            });
+        }
+
+        private void UpdateConnectionStatus()
+        {
+            bool isConnected = _connectivityService?.IsConnected ?? true;
+
+            ConnectionBanner.IsVisible = !isConnected;
+
+            // Optionally disable the submit button when offline
+            if (!isConnected)
+            {
+                SubmitBtn.IsEnabled = false;
+            }
+            else
+            {
+                SubmitBtn.IsEnabled = !string.IsNullOrWhiteSpace(InputEntry?.Text);
+            }
+
+            // Announce to screen reader
+            if (!isConnected)
+            {
+                SemanticScreenReader.Announce("Internet connection lost");
+            }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            // Unsubscribe from connectivity changes
+            if (_connectivityService != null)
+            {
+                _connectivityService.ConnectivityChanged -= OnConnectivityChanged;
             }
         }
 
@@ -51,6 +105,15 @@ namespace Roachagram.MobileUI
         /// </remarks>
         private async void OnSubmit(object? sender, EventArgs e)
         {
+            // Check connectivity before making API call
+            if (_connectivityService?.IsConnected == false)
+            {
+                await DisplayAlert("No Connection",
+                                 "Please check your internet connection and try again.",
+                                 "OK");
+                return;
+            }
+
             //Use these proprties for logging to Application Insights
             var props = new Dictionary<string, string>
             {
@@ -79,7 +142,6 @@ namespace Roachagram.MobileUI
                     }
 
                     SemanticScreenReader.Announce(SubmitBtn.Text);
-
                     
 
                     if (_roachagramAPIService != null)

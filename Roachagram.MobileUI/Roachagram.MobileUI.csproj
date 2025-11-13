@@ -40,6 +40,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<SignAssembly>True</SignAssembly>
+		<AssemblyTitle>Roachagram.MobileUI</AssemblyTitle>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -79,6 +80,12 @@
 
 	<ItemGroup>
 	  <Folder Include="Test Files\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\NoConnectionBanner.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>

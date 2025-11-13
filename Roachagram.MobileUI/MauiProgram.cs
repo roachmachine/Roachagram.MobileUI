@@ -43,6 +43,7 @@ namespace Roachagram.MobileUI
             builder.Services.AddScoped<HttpClient>();
             builder.Services.AddSingleton<IRemoteTelemetryService, RemoteTelemetryService>();
             builder.Services.AddSingleton<IRoachagramAPIService, RoachagramAPIService>();
+            builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
             return builder.Build();
         }
     }
