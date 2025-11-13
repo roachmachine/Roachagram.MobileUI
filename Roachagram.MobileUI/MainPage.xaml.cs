@@ -52,9 +52,10 @@ namespace Roachagram.MobileUI
             try
             {
                 MainThread.BeginInvokeOnMainThread(() =>
-        {
-            UpdateConnectionStatus();
-        });
+                {
+                    UpdateConnectionStatus();
+                });
+
             }
             catch (Exception ex)
             {
@@ -71,7 +72,15 @@ namespace Roachagram.MobileUI
                 ConnectionBanner.IsVisible = !isConnected;
 
                 // Optionally disable the submit button when offline
-                SubmitBtn.IsEnabled = isConnected && !string.IsNullOrWhiteSpace(InputEntry?.Text);
+                if (!isConnected)
+                {
+                    SubmitBtn.IsEnabled = false;
+                }
+                else
+                {
+                    SubmitBtn.IsEnabled = !string.IsNullOrWhiteSpace(InputEntry?.Text);
+                }
+
 
                 // Announce to screen reader
                 if (!isConnected)
@@ -156,7 +165,7 @@ namespace Roachagram.MobileUI
                     }
 
                     SemanticScreenReader.Announce(SubmitBtn.Text);
-                    
+
 
                     if (_roachagramAPIService != null)
                     {
@@ -215,49 +224,49 @@ namespace Roachagram.MobileUI
                                         </html>
                                         ";
 
-            // Update UI and perform fade-in animation on main thread
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                RoachagramResponseView.Source = new HtmlWebViewSource
-                {
-                    Html = $"{roachagramResponse}"
-                };
+                    // Update UI and perform fade-in animation on main thread
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        RoachagramResponseView.Source = new HtmlWebViewSource
+                        {
+                            Html = $"{roachagramResponse}"
+                        };
 
-                // Re-enable input and restore placeholder before fade so the UI is responsive.
-                if (InputEntry != null)
-                {
-                    InputEntry.Text = string.Empty;
-                    InputEntry.IsEnabled = true;
-                    InputEntry.Placeholder = "Enter words or a name";
+                        // Re-enable input and restore placeholder before fade so the UI is responsive.
+                        if (InputEntry != null)
+                        {
+                            InputEntry.Text = string.Empty;
+                            InputEntry.IsEnabled = true;
+                            InputEntry.Placeholder = "Enter words or a name";
+                        }
+
+                        // Turn off the loading spinner
+                        LoadingIndicator.IsRunning = false;
+                        LoadingIndicator.IsVisible = false;
+
+                        // Prepare and animate the web view opacity from 0 -> 1 with easing
+                        RoachagramResponseView.Opacity = 0;
+                        RoachagramResponseView.IsVisible = true;
+
+                        // FadeTo takes duration in milliseconds (uint) and an Easing. Use the existing TEXT_EASE_IN_SECONDS.
+                        await RoachagramResponseView.FadeTo(1, (uint)TEXT_EASE_IN_MILLISECONDS, Easing.CubicOut);
+                    });
+
+                    // No additional UI changes needed here because they were handled on the main thread above.
                 }
-
-                // Turn off the loading spinner
-                LoadingIndicator.IsRunning = false;
-                LoadingIndicator.IsVisible = false;
-
-                // Prepare and animate the web view opacity from 0 -> 1 with easing
-                RoachagramResponseView.Opacity = 0;
-                RoachagramResponseView.IsVisible = true;
-
-                // FadeTo takes duration in milliseconds (uint) and an Easing. Use the existing TEXT_EASE_IN_SECONDS.
-                await RoachagramResponseView.FadeTo(1, (uint)TEXT_EASE_IN_MILLISECONDS, Easing.CubicOut);
-            });
-
-            // No additional UI changes needed here because they were handled on the main thread above.
-        }
-        catch (Exception ex)
-        {
-            // Track exception and provide fallback response
-            _remoteTelemetryService?.TrackExceptionAsync(ex, props);
-
-            roachagramResponse = "An error occurred while fetching anagrams. Please try again.";
-
-            // Ensure UI shows the error message and animate it the same way
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                RoachagramResponseView.Source = new HtmlWebViewSource
+                catch (Exception ex)
                 {
-                    Html = $@"
+                    // Track exception and provide fallback response
+                    _remoteTelemetryService?.TrackExceptionAsync(ex, props);
+
+                    roachagramResponse = "An error occurred while fetching anagrams. Please try again.";
+
+                    // Ensure UI shows the error message and animate it the same way
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        RoachagramResponseView.Source = new HtmlWebViewSource
+                        {
+                            Html = $@"
                         <html>
                             <head>
                                 <style>
@@ -275,24 +284,24 @@ namespace Roachagram.MobileUI
                                 <p><span style=""color:red;"">💥&nbsp;</span>{TextFormatHelper.CapitalizeWordsInQuotes(roachagramResponse)}</p>
                             </body>
                         </html>"
-                };
+                        };
 
-                if (InputEntry != null)
-                {
-                    InputEntry.IsEnabled = true;
-                    InputEntry.Placeholder = "Enter words or a name";
+                        if (InputEntry != null)
+                        {
+                            InputEntry.IsEnabled = true;
+                            InputEntry.Placeholder = "Enter words or a name";
+                        }
+
+                        LoadingIndicator.IsRunning = false;
+                        LoadingIndicator.IsVisible = false;
+
+                        RoachagramResponseView.Opacity = 0;
+                        RoachagramResponseView.IsVisible = true;
+
+                        await RoachagramResponseView.FadeTo(1, (uint)TEXT_EASE_IN_MILLISECONDS, Easing.CubicOut);
+                    });
                 }
-
-                LoadingIndicator.IsRunning = false;
-                LoadingIndicator.IsVisible = false;
-
-                RoachagramResponseView.Opacity = 0;
-                RoachagramResponseView.IsVisible = true;
-
-                await RoachagramResponseView.FadeTo(1, (uint)TEXT_EASE_IN_MILLISECONDS, Easing.CubicOut);
             });
-        }
-    });
         }
 
         // Event handler for the text changed event of an Entry control.
