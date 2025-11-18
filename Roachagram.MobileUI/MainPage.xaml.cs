@@ -149,6 +149,15 @@ namespace Roachagram.MobileUI
 
             string inputText = InputEntry?.Text ?? string.Empty;
 
+            //if inputText length < 3 characters, return
+            if (inputText.Length < 3 || inputText.Length > 15)
+            {
+                await DisplayAlert("Invalid Input",
+                                 "Please enter between 3 and 15 characters to generate anagrams.",
+                                 "OK");
+                return;
+            }
+
             await SetButtonBusyAsync(SubmitBtn, async () =>
             {
                 try
@@ -161,7 +170,7 @@ namespace Roachagram.MobileUI
                     {
                         InputEntry.Text = string.Empty;
                         InputEntry.IsEnabled = false;
-                        InputEntry.Placeholder = "Anagramming...";
+                        InputEntry.Placeholder = "Thinking...";
                     }
 
                     SemanticScreenReader.Announce(SubmitBtn.Text);
