@@ -9,7 +9,7 @@ namespace Roachagram.MobileUI
     public partial class MainPage : ContentPage
     {
         // Maximum number of characters allowed in the input Entry.
-        const int maxInputCharacters = 15;
+        const int maxInputCharacters = 20;
         private const int TEXT_EASE_IN_MILLISECONDS = 1000;
         private readonly IRoachagramAPIService? _roachagramAPIService;
         private readonly IRemoteTelemetryService? _remoteTelemetryService;
@@ -81,12 +81,6 @@ namespace Roachagram.MobileUI
                     SubmitBtn.IsEnabled = !string.IsNullOrWhiteSpace(InputEntry?.Text);
                 }
 
-
-                // Announce to screen reader
-                if (!isConnected)
-                {
-                    SemanticScreenReader.Announce("Internet connection lost");
-                }
             }
             catch (Exception ex)
             {
@@ -150,7 +144,7 @@ namespace Roachagram.MobileUI
             string inputText = InputEntry?.Text ?? string.Empty;
 
             //if inputText length < 3 characters, return
-            if (inputText.Length < 3 || inputText.Length > 15)
+            if (inputText.Length < 3 || inputText.Length > 20)
             {
                 await DisplayAlert("Invalid Input",
                                  "Please enter between 3 and 15 characters to generate anagrams.",
