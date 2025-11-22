@@ -9,12 +9,21 @@
             StrokeThickness="0"
             IsVisible="{Binding IsVisible, Source={x:Reference NoConnectionView}}"
             SemanticProperties.Description = "No internet connection banner">
-        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center">
             <Label Text="⚠️" FontSize="20"/>
             <Label Text="No Internet Connection" 
                    TextColor="White" 
                    FontSize="16"
                    VerticalOptions="Center"/>
+            <!-- Manual refresh button to re-check connectivity -->
+            <Button x:Name="RefreshButton"
+                    Text="Retry"
+                    WidthRequest="100"
+                    Clicked="OnRefreshClicked"
+                    TextColor="White"
+                    BackgroundColor="Red"
+                    VerticalOptions="Center"
+                    SemanticProperties.Description="Retry internet connection check"/>
         </HorizontalStackLayout>
     </Border>
 </ContentView>
