@@ -126,4 +126,29 @@
 		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
 		<AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
 	</PropertyGroup>
+
+	<!-- Add this at the end of the .csproj file, before the closing </Project> tag -->
+	<Target Name="CreateSymbolsZip" AfterTargets="SignAndroidPackage" Condition="'$(Configuration)' == 'Release' AND '$(TargetFramework)' == 'net9.0-android36.0'">
+		<PropertyGroup>
+			<BaseZipPath>$(MSBuildProjectDirectory)\obj\Release\net9.0-android36.0\android\bin\base.zip</BaseZipPath>
+			<SymbolsTempDir>$(MSBuildProjectDirectory)\obj\symbols_temp</SymbolsTempDir>
+			<SymbolsZipPath>$(MSBuildProjectDirectory)\bin\Release\net9.0-android36.0\symbols.zip</SymbolsZipPath>
+		</PropertyGroup>
+
+		<Message Importance="high" Text="Creating symbols.zip for Google Play..." />
+
+		<!-- Create temp directory -->
+		<MakeDir Directories="$(SymbolsTempDir)" />
+
+		<!-- Extract base.zip -->
+		<Exec Command="powershell -Command &quot;Expand-Archive -Path '$(BaseZipPath)' -DestinationPath '$(SymbolsTempDir)' -Force&quot;" />
+
+		<!-- Create symbols.zip from lib folders -->
+		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(SymbolsTempDir)\lib\*' -DestinationPath '$(SymbolsZipPath)' -Force&quot;" />
+
+		<!-- Cleanup temp directory -->
+		<RemoveDir Directories="$(SymbolsTempDir)" />
+
+		<Message Importance="high" Text="symbols.zip created at: $(SymbolsZipPath)" />
+	</Target>
 </Project>
