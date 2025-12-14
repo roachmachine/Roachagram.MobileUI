@@ -27,8 +27,8 @@
 		<ApplicationId>com.roachmachine.roachagram</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.03</ApplicationDisplayVersion>
-		<ApplicationVersion>3</ApplicationVersion>
+		<ApplicationDisplayVersion>1.04</ApplicationDisplayVersion>
+		<ApplicationVersion>4</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -61,13 +61,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="appsettings.json" />
+		<None Remove="appsettings.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiAsset Include="appsettings.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiAsset>
+		<MauiAsset Include="appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</MauiAsset>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -80,22 +80,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Test Files\" />
+		<Folder Include="Test Files\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\NoConnectionBanner.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="Views\NoConnectionBanner.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Test Files\test.html">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="upload-key.jks">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<None Update="Test Files\test.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="upload-key.jks">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -107,16 +107,23 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android36.0|AnyCPU'">
-	  <AndroidUseAapt2>True</AndroidUseAapt2>
-	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-	  <AndroidPackageFormat>aab</AndroidPackageFormat>
-	  <DebugSymbols>True</DebugSymbols>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<DebugSymbols>True</DebugSymbols>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android36.0|AnyCPU'">
-	  <DebugSymbols>True</DebugSymbols>
-	  <AndroidLinkTool>r8</AndroidLinkTool>
+		<DebugSymbols>True</DebugSymbols>
+		<AndroidLinkTool>r8</AndroidLinkTool>
+
+		<!-- Critical properties for symbols.zip generation -->
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<DebugType>portable</DebugType>
+		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+
+		<!-- Generate native debug symbols -->
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
 	</PropertyGroup>
-
-
 </Project>

@@ -99,7 +99,7 @@
                 Grid.Row="6"
                 x:Name="RoachagramResponseView"
                 BackgroundColor="#f8e1b6"
-                HeightRequest="1600"
+                HeightRequest="1200"
                 HorizontalOptions="Fill"
                 Source=""
                 SemanticProperties.Description="Displays the Roachagram response as HTML"

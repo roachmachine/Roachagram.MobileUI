@@ -51,6 +51,7 @@ jarsigner -verify -verbose -certs com.companyname.Roachagram.MobileUI-Signed.aab
 ```
 
 See the project file for the build properties. You will need the passwrod in the environment variables `ROACHAGRAM_STORE_PASS` and `ROACHAGRAM_KEY_PASS`.
+
 ```
 
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -65,12 +66,36 @@ See the project file for the build properties. You will need the passwrod in the
 
 The signature can be verified by this
 ```
-jarsigner -verify -verbose -certs bin\Release\net8.0-android\publish\com.roachmachine.roachagram-Signed.aab
+jarsigner -verify -verbose -certs bin\Release\net9.0-android36.0\com.roachmachine.roachagram-Signed.aab
 ```
 
 The output `.aab` file will be in: (Note the digital signature on file properties will still be empty)
 ```
-bin\Release\net8.0-android\publish\
+bin\Release\net9.0-android36.0\
+```
+Google Play store needs the debug symbols:
+
+The .so files ARE being created, they're just inside the AAB file. The build process embeds them but doesn't create a separate symbols.zip automatically.
+Here's what you need to do:
+Extract the symbols from your AAB
+The .so files with symbols are inside your AAB at obj\Release\net9.0-android36.0\android\bin\base.zip.
+Option 1: Extract from base.zip (recommended)
+
+```
+# Navigate to your project directory
+cd C:\Users\MichaelRoach\source\repos\Roachagram.MobileUI\Roachagram.MobileUI
+
+# Create symbols directory
+mkdir symbols_temp
+
+# Extract base.zip
+Expand-Archive -Path "obj\Release\net9.0-android36.0\android\bin\base.zip" -DestinationPath "symbols_temp" -Force
+
+# Create symbols.zip from the lib folders
+Compress-Archive -Path "symbols_temp\lib\*" -DestinationPath "bin\Release\net9.0-android36.0\symbols.zip" -Force
+
+# Cleanup
+Remove-Item -Recurse -Force symbols_temp
 ```
 
 ---
@@ -154,4 +179,25 @@ Move the keystore to a secure and consistent location, such as:
 
 Then reference that path in your `.csproj` file or build configuration.
 
-Would you like help writing a script to generate and store the keystore in a specific location?
+---
+
+## Do You Need `<AndroidSupportedAbis>`?
+
+**No**, you don't need `<AndroidSupportedAbis>` in your current configuration.
+
+### Why It's Not Required:
+
+1. **Default behavior is sufficient** - When you build an AAB without specifying `AndroidSupportedAbis`, .NET MAUI automatically includes all supported architectures:
+   - `armeabi-v7a` (32-bit ARM)
+   - `arm64-v8a` (64-bit ARM)
+   - `x86` (32-bit x86 emulator)
+   - `x86_64` (64-bit x86 emulator)
+
+2. **Google Play handles it** - When you upload an AAB, Google Play automatically generates optimized APKs for each device architecture from your bundle.
+
+3. **Your current settings are correct** - With `AndroidPackageFormat=aab`, the build system handles architecture selection automatically.
+
+### When You WOULD Need It:
+
+- **To exclude certain architectures**  
+  Example: Only ship 64-bit builds
