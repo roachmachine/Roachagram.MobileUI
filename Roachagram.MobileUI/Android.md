@@ -83,19 +83,18 @@ Option 1: Extract from base.zip (recommended)
 
 ```
 # Navigate to your project directory
-cd C:\Users\MichaelRoach\source\repos\Roachagram.MobileUI\Roachagram.MobileUI
+cd C:\Users\MichaelRoach\source\repos\Roachagram.MobileUI\Roachagram.MobileUI\bin\Release\net9.0-android36.0
 
-# Create symbols directory
-mkdir symbols_temp
+# Cmake the aab a zip file
+Copy-Item "com.roachmachine.roachagram.aab" "com.roachmachine.roachagram.zip"
 
 # Extract base.zip
-Expand-Archive -Path "obj\Release\net9.0-android36.0\android\bin\base.zip" -DestinationPath "symbols_temp" -Force
+Expand-Archive -Path "com.roachmachine.roachagram.zip" -DestinationPath ".\aab_contents" -Force
 
 # Create symbols.zip from the lib folders
-Compress-Archive -Path "symbols_temp\lib\*" -DestinationPath "bin\Release\net9.0-android36.0\symbols.zip" -Force
 
-# Cleanup
-Remove-Item -Recurse -Force symbols_temp
+# Zip the ABI folders that contain .so files
+Compress-Archive -Path ".\aab_contents\base\lib\*" -DestinationPath ".\symbols.zip" -Force
 ```
 
 ---

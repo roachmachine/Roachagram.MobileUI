@@ -114,41 +114,20 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android36.0|AnyCPU'">
-		<DebugSymbols>True</DebugSymbols>
-		<AndroidLinkTool>r8</AndroidLinkTool>
 
-		<!-- Critical properties for symbols.zip generation -->
-		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<DebugSymbols>true</DebugSymbols>
 		<DebugType>portable</DebugType>
-		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
 
-		<!-- Generate native debug symbols -->
-		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
-		<AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<AndroidEnableR8>true</AndroidEnableR8>
+		<AndroidLinkTool>r8</AndroidLinkTool>
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+
+		<!-- Ensure debug symbols are not stripped from native libs -->
+		<AndroidStripNativeDebugSymbols>false</AndroidStripNativeDebugSymbols>
+
+		<!-- Match the ABIs you actually ship -->
+		<AndroidSupportedAbis>arm64-v8a;armeabi-v7a</AndroidSupportedAbis>
+
 	</PropertyGroup>
-
-	<!-- Add this at the end of the .csproj file, before the closing </Project> tag -->
-	<Target Name="CreateSymbolsZip" AfterTargets="SignAndroidPackage" Condition="'$(Configuration)' == 'Release' AND '$(TargetFramework)' == 'net9.0-android36.0'">
-		<PropertyGroup>
-			<BaseZipPath>$(MSBuildProjectDirectory)\obj\Release\net9.0-android36.0\android\bin\base.zip</BaseZipPath>
-			<SymbolsTempDir>$(MSBuildProjectDirectory)\obj\symbols_temp</SymbolsTempDir>
-			<SymbolsZipPath>$(MSBuildProjectDirectory)\bin\Release\net9.0-android36.0\symbols.zip</SymbolsZipPath>
-		</PropertyGroup>
-
-		<Message Importance="high" Text="Creating symbols.zip for Google Play..." />
-
-		<!-- Create temp directory -->
-		<MakeDir Directories="$(SymbolsTempDir)" />
-
-		<!-- Extract base.zip -->
-		<Exec Command="powershell -Command &quot;Expand-Archive -Path '$(BaseZipPath)' -DestinationPath '$(SymbolsTempDir)' -Force&quot;" />
-
-		<!-- Create symbols.zip from lib folders -->
-		<Exec Command="powershell -Command &quot;Compress-Archive -Path '$(SymbolsTempDir)\lib\*' -DestinationPath '$(SymbolsZipPath)' -Force&quot;" />
-
-		<!-- Cleanup temp directory -->
-		<RemoveDir Directories="$(SymbolsTempDir)" />
-
-		<Message Importance="high" Text="symbols.zip created at: $(SymbolsZipPath)" />
-	</Target>
 </Project>
